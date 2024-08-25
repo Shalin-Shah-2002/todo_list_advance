@@ -1,72 +1,51 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
-class AuthService extends ChangeNotifier {
-  final FirebaseAuth reglogin_authenticaton = FirebaseAuth.instance;
+class AuthService with ChangeNotifier {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  User? _user;
-  Map<String, dynamic>? _userdata;
+  bool _isSignedIn = true;
 
-  Map<String, dynamic>? get userdata => _userdata;
-  User? get user => _user;
+  bool get isSignedIn => _isSignedIn;
 
-  AuthService() {
-    reglogin_authenticaton.authStateChanges().listen(_onstatechange);
-  }
+  late String _userid;
+  String get userid => _userid;
 
-  Future<void> _fetchuserdata() async {
-    if (_user != null) {
-      DocumentSnapshot userDoc =
-          await _firestore.collection("users").doc(_user!.uid).get();
-      _userdata = userDoc.data() as Map<String, dynamic>?;
-    }
-  }
-
-  Future<void> _onstatechange(User? user) async {
-    _user = user;
-    if (_user != null) {
-      _fetchuserdata();
-    }
-    notifyListeners();
-  }
-
-  Future<void> _registerwithemailandpassword(
-      String username, String email, String password) async {
+  Future<String?> registerWithEmailPassword(
+      String email, String password, String username) async {
     try {
-      UserCredential result = await reglogin_authenticaton
-          .createUserWithEmailAndPassword(email: email, password: password);
-      User? user = result.user;
-      if (user != null) {
-        await _firestore.collection('user').doc(user.uid).set({
-          'uid': user.uid,
-          'email': email,
-          'username': username,
-        });
-        await _fetchuserdata();
-      }
-    } catch (e) {
-      print(e.toString());
-      rethrow;
-    }
-  }
-
-  Future<void> _signinwithemailandpassword(
-      String email, String password) async {
-    try {
-      await reglogin_authenticaton.signInWithEmailAndPassword(
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      await _fetchuserdata();
+      User? user = result.user;
+      _userid = user!.uid; //this variable is for userid 
+      await _firestore.collection('users').doc(user.uid).set({
+        'username': username,
+        'email': email,
+      });
+
+      return null;
     } catch (e) {
-      print(e.toString());
-      rethrow;
+      return e.toString();
     }
   }
 
-  Future<void> _Signout() async {
-    await reglogin_authenticaton.signOut();
-    _userdata = null;
+  Future<String?> loginWithEmailPassword(String email, String password) async {
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      return null;
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  Future<void> signOut() async {
+    await _auth.signOut();
+    _isSignedIn = false;
     notifyListeners();
+  }
+
+  User? get currentUser {
+    return _auth.currentUser;
   }
 }
