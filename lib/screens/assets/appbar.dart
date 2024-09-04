@@ -19,7 +19,7 @@ class _MyAppBarState extends State<MyAppBar> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Profile(),
+                  builder: (context) => const Profile(),
                 ));
           },
           child: Container(

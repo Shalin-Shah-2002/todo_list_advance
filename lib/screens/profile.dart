@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_list_flutter/Provider/authService.dart';
 import 'package:todo_list_flutter/Provider/fetching_firestore.dart';
+import 'package:todo_list_flutter/Provider/updating_userprofile.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -15,6 +16,10 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext homecontext) {
     final authService = Provider.of<AuthService>(homecontext, listen: true);
     final userdata = Provider.of<FetchingFirestore>(homecontext, listen: true);
+    final updateuserprofile =
+        Provider.of<UpdateUserProfile>(homecontext, listen: true);
+
+    TextEditingController UpdatedUsername = TextEditingController();
 
     String? username = userdata.username;
     String? email = userdata.email;
@@ -90,7 +95,10 @@ class _ProfileState extends State<Profile> {
                         onPressed: () {
                           authService.signOut();
                         },
-                        child: Text("log out",style: TextStyle(color: Colors.white),)),
+                        child: Text(
+                          "log out",
+                          style: TextStyle(color: Colors.white),
+                        )),
                   ),
                   SizedBox(
                     width: 5,
@@ -106,7 +114,59 @@ class _ProfileState extends State<Profile> {
                                   BorderRadius.zero, // Removes rounded corners
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('Updating Profile'),
+                                content: Text(
+                                    'Are You Sure You Want To Update Your Profile ??'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, 'Cancel');
+                                    },
+                                    child: Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                                  content: Container(
+                                                height: 200,
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                        "Enter Your New Username"),
+                                                    TextField(
+                                                      controller:
+                                                          UpdatedUsername,
+                                                      decoration: InputDecoration(
+                                                          hintText:
+                                                              'New Username'),
+                                                    ),
+                                                    TextButton(
+                                                        onPressed: () {
+                                                          updateuserprofile
+                                                              .updatingprofile(
+                                                                  UpdatedUsername
+                                                                      .text);
+                                                        },
+                                                        child: const Text(
+                                                            "Update"))
+                                                  ],
+                                                ),
+                                              )));
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                           child: Text(
                             "Update",
                             style: TextStyle(color: Colors.white),

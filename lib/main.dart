@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_list_flutter/Provider/adding_task.dart';
 import 'package:todo_list_flutter/Provider/authService.dart';
+import 'package:todo_list_flutter/Provider/updating_userprofile.dart';
 import 'package:todo_list_flutter/screens/Reg.dart';
 import 'package:todo_list_flutter/Provider/fetching_firestore.dart';
 
@@ -17,7 +19,11 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthService()),
-        ChangeNotifierProvider(create: (context) => FetchingFirestore())
+        ChangeNotifierProvider(create: (context) => FetchingFirestore()),
+        ChangeNotifierProvider(create: (context) => UpdateUserProfile()),
+        ChangeNotifierProvider(
+          create: (context) => AddingTask(),
+        )
       ],
       child: MaterialApp(
         home: LoginRegisterScreen(),
