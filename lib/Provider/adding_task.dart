@@ -6,9 +6,13 @@ import 'package:flutter/material.dart';
 class AddingTask extends ChangeNotifier {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? user = FirebaseAuth.instance.currentUser?.uid;
+  bool _isChecked = false;
+
+  bool get isChecked => _isChecked;
 
   Future<void> Adding(
-      TextEditingController task, TextEditingController title) async {
+      {required TextEditingController task,
+      required TextEditingController title}) async {
     DocumentReference<Map<String, dynamic>> collectioninstance = _firestore
         .collection('users')
         .doc(user)
@@ -21,17 +25,20 @@ class AddingTask extends ChangeNotifier {
     }
   }
 
-  Future<void> Deleteing(TextEditingController title) async {
-    DocumentReference<Map<String, dynamic>> collectioninstance = _firestore
-        .collection('users')
-        .doc(user)
-        .collection('Tasks')
-        .doc(title.text);
+  Future<void> Deleteing(String docId) async {
+    DocumentReference<Map<String, dynamic>> collectioninstance =
+        _firestore.collection('users').doc(user).collection('Tasks').doc(docId);
 
     try {
       await collectioninstance.delete();
+      notifyListeners();
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  void toggleCheckbox(bool? value) {
+    _isChecked = !_isChecked;
+    notifyListeners();
   }
 }

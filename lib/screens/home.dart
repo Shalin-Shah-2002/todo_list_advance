@@ -67,7 +67,7 @@ class _MyHomeState extends State<MyHome> {
                           height: 30,
                         ),
                         Assets().ThemeButton(50, 100, "Add", () {
-                          TaskaddingProvider.Adding(task, title);
+                          TaskaddingProvider.Adding(task: task, title: title);
                           Navigator.pop(context);
                         })
                       ],
@@ -109,55 +109,62 @@ class _MyHomeState extends State<MyHome> {
                     if (snapshot.hasError) {
                       return Center(child: Text("Error: ${snapshot.error}"));
                     }
-                    // if (snapshot.connectionState == ConnectionState.waiting) {
-                    //   return Center(child: CircularProgressIndicator());
-                    // }
                     final List<DocumentSnapshot> documents =
                         snapshot.data!.docs;
-
-                    return ListView.builder(
-                      itemCount: documents.length,
-                      itemBuilder: (context, index) {
-                        final doc = documents[index];
-                        final taskTitle = doc['Task'];
-                        return Dismissible(
-                          key: Key(doc.toString()),
-                          direction: DismissDirection.endToStart,
-                          onDismissed: (direction) {
-                            TaskaddingProvider.Deleteing(title);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text('Item ${index + 1} dismissed')),
-                            );
-                          },
-                          background: Container(
-                            alignment: Alignment.centerRight,
-                            padding: EdgeInsets.symmetric(horizontal: 20),
-                            color: Colors.black,
-                            child: Icon(Icons.delete, color: Colors.white),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              height: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.grey.shade300,
-                              ),
-                              child: Row(
-                                children: [
-                                  Checkbox(
-                                    value: false,
-                                    onChanged: (value) {},
+                    return documents.isEmpty
+                        ? const Center(
+                            child:
+                                Text("Create a Task, Your Task List Is Empty"))
+                        : ListView.builder(
+                            itemCount: documents.length,
+                            itemBuilder: (context, index) {
+                              final doc = documents[index];
+                              final taskTitle = doc['Task'];
+                              return Dismissible(
+                                key: Key(doc.id),
+                                direction: DismissDirection.endToStart,
+                                onDismissed: (direction) {
+                                  print(doc.id);
+                                  TaskaddingProvider.Deleteing(doc.id);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Task "${taskTitle}" dismissed')),
+                                  );
+                                },
+                                background: Container(
+                                  alignment: Alignment.centerRight,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  color: Colors.black,
+                                  child: const Icon(Icons.delete,
+                                      color: Colors.white),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: Colors.grey.shade300,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Checkbox(
+                                          value: TaskaddingProvider.isChecked,
+                                          onChanged: (value) {
+                                            TaskaddingProvider.toggleCheckbox(
+                                                value);
+                                          },
+                                        ),
+                                        Text(taskTitle)
+                                      ],
+                                    ),
                                   ),
-                                  Text(taskTitle)
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
+                                ),
+                              );
+                            },
+                          );
                   },
                 ))
           ],
