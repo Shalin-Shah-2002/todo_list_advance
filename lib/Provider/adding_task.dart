@@ -19,7 +19,7 @@ class AddingTask extends ChangeNotifier {
         .collection('Tasks')
         .doc(title.text);
     try {
-      await collectioninstance.set({"Task": task.text});
+      await collectioninstance.set({"Task": task.text, "Check": _isChecked});
     } catch (e) {
       print(e.toString());
     }
@@ -37,8 +37,16 @@ class AddingTask extends ChangeNotifier {
     }
   }
 
-  void toggleCheckbox(bool? value) {
+  Future<void> toggleCheckbox(bool? value, String docid) async {
     _isChecked = !_isChecked;
+    DocumentReference<Map<String, dynamic>> collectioninstance =
+        _firestore.collection('users').doc(user).collection("Tasks").doc(docid);
+
+    try {
+      await collectioninstance.update({"Check": _isChecked});
+    } catch (e) {
+      print(e.toString());
+    }
     notifyListeners();
   }
 }

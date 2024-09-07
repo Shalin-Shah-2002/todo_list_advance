@@ -49,16 +49,22 @@ class _MyHomeState extends State<MyHome> {
             builder: (context) => AlertDialog(
               actions: [
                 Container(
-                  height: 200,
+                  height: 250,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "Your Task",
-                          style: TextStyle(),
+                        const SizedBox(
+                          height: 15,
                         ),
-                        const Spacer(),
+                        const Text(
+                          " Enter Your Task",
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
                         Assets().inputfield(
                             controller: title, hint: "Enter Your Task Title"),
                         Assets().inputfield(
@@ -113,19 +119,25 @@ class _MyHomeState extends State<MyHome> {
                         snapshot.data!.docs;
                     return documents.isEmpty
                         ? const Center(
-                            child:
-                                Text("Create a Task, Your Task List Is Empty"))
+                            child: Text(
+                            "Create a Task, Your Task List Is Empty",
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w900),
+                          ))
                         : ListView.builder(
                             itemCount: documents.length,
                             itemBuilder: (context, index) {
                               final doc = documents[index];
                               final taskTitle = doc['Task'];
+                              final isChecked = doc['Check'] ?? false;
                               return Dismissible(
                                 key: Key(doc.id),
                                 direction: DismissDirection.endToStart,
                                 onDismissed: (direction) {
                                   print(doc.id);
-                                  TaskaddingProvider.Deleteing(doc.id);
+                                  TaskaddingProvider.Deleteing(
+                                    doc.id,
+                                  );
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(
@@ -151,13 +163,13 @@ class _MyHomeState extends State<MyHome> {
                                     child: Row(
                                       children: [
                                         Checkbox(
-                                          value: TaskaddingProvider.isChecked,
+                                          value: isChecked,
                                           onChanged: (value) {
                                             TaskaddingProvider.toggleCheckbox(
-                                                value);
+                                                value, doc.id);
                                           },
                                         ),
-                                        Text(taskTitle)
+                                        Expanded(child: Text(taskTitle))
                                       ],
                                     ),
                                   ),

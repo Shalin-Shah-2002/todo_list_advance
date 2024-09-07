@@ -6,6 +6,7 @@ import 'package:todo_list_flutter/Provider/authService.dart';
 import 'package:todo_list_flutter/Provider/updating_userprofile.dart';
 import 'package:todo_list_flutter/screens/Reg.dart';
 import 'package:todo_list_flutter/Provider/fetching_firestore.dart';
+import 'package:todo_list_flutter/screens/home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthService()),
@@ -26,8 +28,22 @@ class MyApp extends StatelessWidget {
         )
       ],
       child: MaterialApp(
-        home: LoginRegisterScreen(),
+        debugShowCheckedModeBanner: false,
+        home: AuthCheck(),
       ),
     );
+  }
+}
+
+class AuthCheck extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
+    if (authService.isSignedIn) {
+      return const MyHome(); // User is signed in, show home page
+    } else {
+      return LoginRegisterScreen(); // User is not signed in, show sign-in page
+    }
   }
 }
